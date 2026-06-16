@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gráfica de Test Dinámica</title>
   
-  <!-- Cargamos la librería oficial de Google Charts -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
@@ -53,21 +52,22 @@
         }
       }
 
-      const data = google.visualization.arrayToDataTable(datosJSON);
+      // TRUCO DE CLARIDAD: Renombramos las columnas en la leyenda para indicar el eje
+      if (datosJSON[0][1]) datosJSON[0][1] = datosJSON[0][1] + " (Eje Izq)";
+      if (datosJSON[0][2]) datosJSON[0][2] = datosJSON[0][2] + " (Eje Dcho)";
 
-      // Obtenemos dinámicamente los nombres de tus variables de la primera fila
-      const nombreY1 = datosJSON[0][1] || "Variable 1";
-      const nombreY2 = datosJSON[0][2] || "Variable 2";
+      const data = google.visualization.arrayToDataTable(datosJSON);
 
       const options = {
         title: 'Evolución de Variables del Test',
         titleTextStyle: { fontSize: 15, bold: true, color: '#333' },
         curveType: 'function', 
-        legend: { position: 'bottom', textStyle: { fontSize: 11 } },
         
-        // CORRECCIÓN: Reducimos el ancho del área interior (de 76% a 64%) y ampliamos márgenes (left/right a 18%) 
-        // para que quepan holgadamente los títulos y los números de los dos ejes sin recortarse.
-        chartArea: { width: '64%', height: '70%', top: '10%', left: '18%', right: '18%' },
+        // Ajustamos la leyenda abajo con un tamaño de letra bien legible
+        legend: { position: 'bottom', textStyle: { fontSize: 12, bold: true } },
+        
+        // Al quitar los títulos laterales, ganamos muchísimo espacio para la gráfica (de 64% a 82%)
+        chartArea: { width: '82%', height: '70%', top: '10%', left: '9%', right: '9%' },
         
         // Configuración Eje X
         hAxis: {
@@ -78,32 +78,26 @@
           slantedTextAngle: 45
         },
 
-        // Mantenemos los colores de las líneas/puntos para identificarlas
+        // Asignación de las series a cada eje vertical
         series: {
-          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul)
-          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo)
+          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul) -> Izquierda
+          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo) -> Derecha
         },
 
-        // Configuración de los ejes verticales con títulos forzados en negro
+        // Configuramos los dos ejes con sus colores correspondientes en los números
         vAxes: {
           0: {
-            title: nombreY1,
-            // Forzamos negro, tamaño visible y desactivamos inclinaciones raras
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
-            textStyle: { color: '#1a73e8', fontSize: 9 },
+            textStyle: { color: '#1a73e8', fontSize: 10, bold: true },
             gridlines: { color: '#f3f3f3' }
           },
           1: {
-            title: nombreY2,
-            // Forzamos negro para el eje derecho
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
-            textStyle: { color: '#d93025', fontSize: 9 },
+            textStyle: { color: '#d93025', fontSize: 10, bold: true },
             gridlines: { count: 0 }
           }
         },
         
         pointsVisible: true,
-        pointSize: 4
+        pointSize: 5 // Puntos un pelín más grandes para poder tocarlos bien con el dedo
       };
 
       const chart = new google.visualization.LineChart(document.getElementById('grafica_div'));
