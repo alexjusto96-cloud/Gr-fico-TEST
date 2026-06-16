@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfica de Test Dinámica</title>
+  
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  
+  <style>
+    /* Aseguramos que la gráfica ocupe toda la pantalla del móvil en App Inventor */
+    html, body, #grafica_div {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      color: #666;
+    }
+  </style>
+
+  <script type="text/javascript">
+    // 1. Inicializar Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(cargarDatos);
+
+    function cargarDatos() {
+      // URL de tu Google Apps Script (coincide con la de tu TinyDB)
+      const urlScript = "https://script.google.com/macros/s/AKfycbzqqfR5_X-wCwjQ3fNN__W1_L_nJlTjlhLefkAo_4feI9_VuA4sDsyHstGXbyRwtgUjZQ/exec?accion=graficaTest";
+
+      // Llamada asíncrona para traer el JSON de Google Sheets
+      fetch(urlScript)
+        .then(response => {
+          if (!response.ok) throw new Error("Error en la red");
+          return response.json();
+        })
+        .then(datosJSON => {
+          // Ocultamos el texto de carga y dibujamos
+          document.getElementById('loading').style.display = 'none';
+          dibujarGrafica(datosJSON);
+        })
+        .catch(error => {
+          console.error("Error al cargar:", error);
+          document.getElementById('loading').innerText = "❌ Error al cargar los datos del test";
+        });
+    }
+
+    function dibujarGrafica(datosJSON) {
+      // Convertimos la matriz JSON en un objeto de datos válido para Google
+      const data = google.visualization.arrayToDataTable(datosJSON);
+
+      // Configuración estética de la gráfica (adaptada a pantallas móviles)
+      const options = {
+        title: 'Evolución de Variables del Test',
+        titleTextStyle: { fontSize: 16, bold: true, color: '#333' },
+        curveType: 'function', // Suaviza las líneas (quitar esta línea si prefieres líneas rectas)
+        legend: { position: 'bottom', textStyle: { fontSize: 12 } },
+        chartArea: { width: '85%', height: '70%', top: '10%' },
+        hAxis: {
+          title: 'Registros / Fechas',
+          titleTextStyle: { italic: false, bold: true },
+          textStyle: { fontSize: 10 }
+        },
+        vAxis: {
+          title: 'Valores',
+          titleTextStyle: { italic: false, bold: true },
+          textStyle: { fontSize: 10 },
+          gridlines: { color: '#f3f3f3' }
+        },
+        // Estilos de los puntos al pasar el dedo/ratón
+        pointsVisible: true,
+        pointSize: 4
+      };
+
+      // Renderizamos la gráfica de líneas en el contenedor
+      const chart = new google.visualization.LineChart(document.getElementById('grafica_div'));
+      chart.draw(data, options);
+    }
+
+    // Redibujar la gráfica si el móvil cambia de orientación (horizontal/vertical)
+    window.addEventListener('resize', cargarDatos);
+  </script>
+</head>
+<body>
+
+  <div id="loading">📊 Cargando datos desde Google Sheets...</div>
+  <div id="grafica_div"></div>
+
+</body>
+</html>
