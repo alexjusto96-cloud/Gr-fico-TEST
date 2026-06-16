@@ -55,7 +55,7 @@
 
       const data = google.visualization.arrayToDataTable(datosJSON);
 
-      // Obtenemos dinámicamente los nombres de tus variables
+      // Obtenemos dinámicamente los nombres de tus variables de la primera fila
       const nombreY1 = datosJSON[0][1] || "Variable 1";
       const nombreY2 = datosJSON[0][2] || "Variable 2";
 
@@ -64,7 +64,10 @@
         titleTextStyle: { fontSize: 15, bold: true, color: '#333' },
         curveType: 'function', 
         legend: { position: 'bottom', textStyle: { fontSize: 11 } },
-        chartArea: { width: '76%', height: '70%', top: '10%', left: '12%', right: '12%' },
+        
+        // CORRECCIÓN: Reducimos el ancho del área interior (de 76% a 64%) y ampliamos márgenes (left/right a 18%) 
+        // para que quepan holgadamente los títulos y los números de los dos ejes sin recortarse.
+        chartArea: { width: '64%', height: '70%', top: '10%', left: '18%', right: '18%' },
         
         // Configuración Eje X
         hAxis: {
@@ -81,17 +84,19 @@
           1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo)
         },
 
-        // Configuración de los ejes verticales con títulos en negro y rotación automática
+        // Configuración de los ejes verticales con títulos forzados en negro
         vAxes: {
           0: {
             title: nombreY1,
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
+            // Forzamos negro, tamaño visible y desactivamos inclinaciones raras
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#1a73e8', fontSize: 9 },
             gridlines: { color: '#f3f3f3' }
           },
           1: {
             title: nombreY2,
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
+            // Forzamos negro para el eje derecho
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#d93025', fontSize: 9 },
             gridlines: { count: 0 }
           }
@@ -110,7 +115,6 @@
 </head>
 <body>
 
-  <!-- El texto de carga ha sido eliminado por completo -->
   <div id="grafica_div"></div>
 
 </body>
