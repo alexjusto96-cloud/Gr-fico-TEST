@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gráfica de Test Dinámica</title>
   
+  <!-- Cargamos la librería oficial de Google Charts -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
@@ -16,14 +17,6 @@
       padding: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-    }
-    #loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 16px;
-      color: #666;
     }
   </style>
 
@@ -40,18 +33,15 @@
           return response.json();
         })
         .then(datosJSON => {
-          document.getElementById('loading').style.display = 'none';
           procesarYDibujar(datosJSON);
         })
         .catch(error => {
           console.error("Error al cargar:", error);
-          document.getElementById('loading').innerText = "❌ Error al cargar los datos del test";
         });
     }
 
     function procesarYDibujar(datosJSON) {
-      // 1. LIMPIEZA DE FECHAS: Convertimos las fechas largas a formato corto (DD/MM/AAAA)
-      // Saltamos la fila 0 (que contiene los títulos de las variables)
+      // Limpieza de fechas largas a formato corto (DD/MM/AAAA)
       for (let i = 1; i < datosJSON.length; i++) {
         let xValue = datosJSON[i][0];
         if (xValue && !isNaN(Date.parse(xValue))) {
@@ -59,52 +49,51 @@
           let dia = String(fecha.getDate()).padStart(2, '0');
           let mes = String(fecha.getMonth() + 1).padStart(2, '0');
           let anio = fecha.getFullYear();
-          datosJSON[i][0] = dia + "/" + mes + "/" + anio; // Reemplazamos por la fecha limpia
+          datosJSON[i][0] = dia + "/" + mes + "/" + anio;
         }
       }
 
       const data = google.visualization.arrayToDataTable(datosJSON);
 
-      // Obtenemos dinámicamente los nombres de las variables de la cabecera para los ejes
+      // Obtenemos dinámicamente los nombres de tus variables
       const nombreY1 = datosJSON[0][1] || "Variable 1";
       const nombreY2 = datosJSON[0][2] || "Variable 2";
 
-      // 2 y 3. CONFIGURACIÓN DE DOBLE EJE Y
       const options = {
         title: 'Evolución de Variables del Test',
         titleTextStyle: { fontSize: 15, bold: true, color: '#333' },
         curveType: 'function', 
         legend: { position: 'bottom', textStyle: { fontSize: 11 } },
-        chartArea: { width: '78%', height: '70%', top: '10%', left: '11%', right: '11%' },
+        chartArea: { width: '76%', height: '70%', top: '10%', left: '12%', right: '12%' },
         
-        // Configuración del Eje X (Fechas limpias)
+        // Configuración Eje X
         hAxis: {
           title: 'Registros / Fechas',
-          titleTextStyle: { italic: false, bold: true, fontSize: 11 },
+          titleTextStyle: { italic: false, bold: true, fontSize: 11, color: '#000000' },
           textStyle: { fontSize: 9 },
-          slantedText: true, // Inclina las fechas si hay muchas para que no se pisen
+          slantedText: true,
           slantedTextAngle: 45
         },
 
-        // Definición de las dos series de datos
+        // Mantenemos los colores de las líneas/puntos para identificarlas
         series: {
-          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul) -> Eje Izquierdo
-          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo) -> Eje Derecho
+          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul)
+          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo)
         },
 
-        // Configuración detallada de cada eje vertical
+        // Configuración de los ejes verticales con títulos en negro y rotación automática
         vAxes: {
           0: {
             title: nombreY1,
-            titleTextStyle: { italic: false, bold: true, color: '#1a73e8', fontSize: 11 },
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
             textStyle: { color: '#1a73e8', fontSize: 9 },
             gridlines: { color: '#f3f3f3' }
           },
           1: {
             title: nombreY2,
-            titleTextStyle: { italic: false, bold: true, color: '#d93025', fontSize: 11 },
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
             textStyle: { color: '#d93025', fontSize: 9 },
-            gridlines: { count: 0 } // Ocultamos las líneas de cuadrícula secundarias para no emborronar
+            gridlines: { count: 0 }
           }
         },
         
@@ -116,19 +105,16 @@
       chart.draw(data, options);
     }
 
-    // Redibujar automáticamente si cambia la orientación del móvil
     window.addEventListener('resize', cargarDatos);
   </script>
 </head>
 <body>
 
-  <div id="loading">📊 Cargando datos y formateando ejes...</div>
+  <!-- El texto de carga ha sido eliminado por completo -->
   <div id="grafica_div"></div>
 
 </body>
 </html>
-  <div id="loading">📊 Cargando datos desde Google Sheets...</div>
-  <div id="grafica_div"></div>
 
 </body>
 </html>
