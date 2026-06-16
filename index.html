@@ -8,7 +8,7 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
-    /* Aseguramos que la gráfica ocupe toda la pantalla del móvil en App Inventor */
+    /* Ajuste total a la pantalla del móvil en App Inventor */
     html, body, #grafica_div {
       width: 100%;
       height: 100%;
@@ -28,24 +28,20 @@
   </style>
 
   <script type="text/javascript">
-    // 1. Inicializar Google Charts
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(cargarDatos);
 
     function cargarDatos() {
-      // URL de tu Google Apps Script (coincide con la de tu TinyDB)
       const urlScript = "https://script.google.com/macros/s/AKfycbzqqfR5_X-wCwjQ3fNN__W1_L_nJlTjlhLefkAo_4feI9_VuA4sDsyHstGXbyRwtgUjZQ/exec?accion=graficaTest";
 
-      // Llamada asíncrona para traer el JSON de Google Sheets
       fetch(urlScript)
         .then(response => {
           if (!response.ok) throw new Error("Error en la red");
           return response.json();
         })
         .then(datosJSON => {
-          // Ocultamos el texto de carga y dibujamos
           document.getElementById('loading').style.display = 'none';
-          dibujarGrafica(datosJSON);
+          procesarYDibujar(datosJSON);
         })
         .catch(error => {
           console.error("Error al cargar:", error);
@@ -53,44 +49,84 @@
         });
     }
 
-    function dibujarGrafica(datosJSON) {
-      // Convertimos la matriz JSON en un objeto de datos válido para Google
+    function procesarYDibujar(datosJSON) {
+      // 1. LIMPIEZA DE FECHAS: Convertimos las fechas largas a formato corto (DD/MM/AAAA)
+      // Saltamos la fila 0 (que contiene los títulos de las variables)
+      for (let i = 1; i < datosJSON.length; i++) {
+        let xValue = datosJSON[i][0];
+        if (xValue && !isNaN(Date.parse(xValue))) {
+          let fecha = new Date(xValue);
+          let dia = String(fecha.getDate()).padStart(2, '0');
+          let mes = String(fecha.getMonth() + 1).padStart(2, '0');
+          let anio = fecha.getFullYear();
+          datosJSON[i][0] = dia + "/" + mes + "/" + anio; // Reemplazamos por la fecha limpia
+        }
+      }
+
       const data = google.visualization.arrayToDataTable(datosJSON);
 
-      // Configuración estética de la gráfica (adaptada a pantallas móviles)
+      // Obtenemos dinámicamente los nombres de las variables de la cabecera para los ejes
+      const nombreY1 = datosJSON[0][1] || "Variable 1";
+      const nombreY2 = datosJSON[0][2] || "Variable 2";
+
+      // 2 y 3. CONFIGURACIÓN DE DOBLE EJE Y
       const options = {
         title: 'Evolución de Variables del Test',
-        titleTextStyle: { fontSize: 16, bold: true, color: '#333' },
-        curveType: 'function', // Suaviza las líneas (quitar esta línea si prefieres líneas rectas)
-        legend: { position: 'bottom', textStyle: { fontSize: 12 } },
-        chartArea: { width: '85%', height: '70%', top: '10%' },
+        titleTextStyle: { fontSize: 15, bold: true, color: '#333' },
+        curveType: 'function', 
+        legend: { position: 'bottom', textStyle: { fontSize: 11 } },
+        chartArea: { width: '78%', height: '70%', top: '10%', left: '11%', right: '11%' },
+        
+        // Configuración del Eje X (Fechas limpias)
         hAxis: {
           title: 'Registros / Fechas',
-          titleTextStyle: { italic: false, bold: true },
-          textStyle: { fontSize: 10 }
+          titleTextStyle: { italic: false, bold: true, fontSize: 11 },
+          textStyle: { fontSize: 9 },
+          slantedText: true, // Inclina las fechas si hay muchas para que no se pisen
+          slantedTextAngle: 45
         },
-        vAxis: {
-          title: 'Valores',
-          titleTextStyle: { italic: false, bold: true },
-          textStyle: { fontSize: 10 },
-          gridlines: { color: '#f3f3f3' }
+
+        // Definición de las dos series de datos
+        series: {
+          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul) -> Eje Izquierdo
+          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo) -> Eje Derecho
         },
-        // Estilos de los puntos al pasar el dedo/ratón
+
+        // Configuración detallada de cada eje vertical
+        vAxes: {
+          0: {
+            title: nombreY1,
+            titleTextStyle: { italic: false, bold: true, color: '#1a73e8', fontSize: 11 },
+            textStyle: { color: '#1a73e8', fontSize: 9 },
+            gridlines: { color: '#f3f3f3' }
+          },
+          1: {
+            title: nombreY2,
+            titleTextStyle: { italic: false, bold: true, color: '#d93025', fontSize: 11 },
+            textStyle: { color: '#d93025', fontSize: 9 },
+            gridlines: { count: 0 } // Ocultamos las líneas de cuadrícula secundarias para no emborronar
+          }
+        },
+        
         pointsVisible: true,
         pointSize: 4
       };
 
-      // Renderizamos la gráfica de líneas en el contenedor
       const chart = new google.visualization.LineChart(document.getElementById('grafica_div'));
       chart.draw(data, options);
     }
 
-    // Redibujar la gráfica si el móvil cambia de orientación (horizontal/vertical)
+    // Redibujar automáticamente si cambia la orientación del móvil
     window.addEventListener('resize', cargarDatos);
   </script>
 </head>
 <body>
 
+  <div id="loading">📊 Cargando datos y formateando ejes...</div>
+  <div id="grafica_div"></div>
+
+</body>
+</html>
   <div id="loading">📊 Cargando datos desde Google Sheets...</div>
   <div id="grafica_div"></div>
 
