@@ -54,20 +54,13 @@
 
       const data = google.visualization.arrayToDataTable(datosJSON);
 
-      // Obtenemos dinámicamente los nombres de tus variables de la primera fila
-      const nombreY1 = datosJSON[0][1] || "Variable 1";
-      const nombreY2 = datosJSON[0][2] || "Variable 2";
-
       const options = {
-        // TÍTULO CENTRADO Y MODIFICADO
-        title: 'Evolución del rendimiento',
-        alignment: 'center', // Alinea el contenido del título principal
-        titleTextStyle: { fontSize: 16, bold: true, color: '#333' },
+        // TÍTULO ELIMINADO POR COMPLETO
         curveType: 'function', 
         legend: { position: 'bottom', textStyle: { fontSize: 11 } },
         
-        // MARGENES LATERALES: Ajustados al 16% para dar suficiente espacio exterior a los nombres de los ejes
-        chartArea: { width: '68%', height: '70%', top: '12%', left: '16%', right: '16%' },
+        // Maximizamos el espacio vertical al no haber título arriba (reducimos top a '4%')
+        chartArea: { width: '78%', height: '75%', top: '4%', left: '11%', right: '11%' },
         
         // Configuración Eje X
         hAxis: {
@@ -78,32 +71,44 @@
           slantedTextAngle: 45
         },
 
-        // Mantenemos los colores de las líneas/puntos para identificarlas
+        // Mantenemos la asignación a cada eje vertical
         series: {
-          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Serie 1 (Azul)
-          1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo)
+          0: { targetAxisIndex: 0, color: '#1a73e8' }, // Variable 1 (Azul)
+          1: { targetAxisIndex: 1, color: '#d93025' }  // Variable 2 (Rojo)
         },
 
-        // COLOCO LOS TITULOS EN LOS EJES VERTICALES FORZANDO SU POSICIÓN EXTERIOR
+        // LÍNEAS DE TENDENCIA: Una para cada serie usando sus colores correspondientes
+        trendlines: {
+          0: { 
+            type: 'linear', 
+            color: '#1a73e8', 
+            opacity: 0.4, 
+            lineWidth: 2,
+            labelInLegend: 'Tendencia 1'
+          },
+          1: { 
+            type: 'linear', 
+            color: '#d93025', 
+            opacity: 0.4, 
+            lineWidth: 2,
+            labelInLegend: 'Tendencia 2'
+          }
+        },
+
+        // Configuración de escalas de números verticales sin etiquetas de título
         vAxes: {
           0: {
-            title: nombreY1,
-            titlePosition: 'out', // Fuerza a renderizar el nombre en el lado izquierdo
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#1a73e8', fontSize: 9 },
             gridlines: { color: '#f3f3f3' }
           },
           1: {
-            title: nombreY2,
-            titlePosition: 'out', // Fuerza a renderizar el nombre en el lado derecho
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#d93025', fontSize: 9 },
             gridlines: { count: 0 }
           }
         },
         
         pointsVisible: true,
-        pointSize: 5
+        pointSize: 4
       };
 
       const chart = new google.visualization.LineChart(document.getElementById('grafica_div'));
