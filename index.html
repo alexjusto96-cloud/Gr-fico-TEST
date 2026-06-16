@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gráfica de Test Dinámica</title>
   
-  <!-- Cargamos la librería oficial de Google Charts -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
@@ -55,16 +54,20 @@
 
       const data = google.visualization.arrayToDataTable(datosJSON);
 
-      // Obtenemos dinámicamente los nombres de tus variables
+      // Obtenemos dinámicamente los nombres de tus variables de la primera fila
       const nombreY1 = datosJSON[0][1] || "Variable 1";
       const nombreY2 = datosJSON[0][2] || "Variable 2";
 
       const options = {
-        title: 'Evolución de Variables del Test',
-        titleTextStyle: { fontSize: 15, bold: true, color: '#333' },
+        // TÍTULO CENTRADO Y MODIFICADO
+        title: 'Evolución del rendimiento',
+        alignment: 'center', // Alinea el contenido del título principal
+        titleTextStyle: { fontSize: 16, bold: true, color: '#333' },
         curveType: 'function', 
         legend: { position: 'bottom', textStyle: { fontSize: 11 } },
-        chartArea: { width: '76%', height: '70%', top: '10%', left: '12%', right: '12%' },
+        
+        // MARGENES LATERALES: Ajustados al 16% para dar suficiente espacio exterior a los nombres de los ejes
+        chartArea: { width: '68%', height: '70%', top: '12%', left: '16%', right: '16%' },
         
         // Configuración Eje X
         hAxis: {
@@ -81,24 +84,26 @@
           1: { targetAxisIndex: 1, color: '#d93025' }  // Serie 2 (Rojo)
         },
 
-        // Configuración de los ejes verticales con títulos en negro y rotación automática
+        // COLOCO LOS TITULOS EN LOS EJES VERTICALES FORZANDO SU POSICIÓN EXTERIOR
         vAxes: {
           0: {
             title: nombreY1,
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
+            titlePosition: 'out', // Fuerza a renderizar el nombre en el lado izquierdo
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#1a73e8', fontSize: 9 },
             gridlines: { color: '#f3f3f3' }
           },
           1: {
             title: nombreY2,
-            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 12 },
+            titlePosition: 'out', // Fuerza a renderizar el nombre en el lado derecho
+            titleTextStyle: { italic: false, bold: true, color: '#000000', fontSize: 11 },
             textStyle: { color: '#d93025', fontSize: 9 },
             gridlines: { count: 0 }
           }
         },
         
         pointsVisible: true,
-        pointSize: 4
+        pointSize: 5
       };
 
       const chart = new google.visualization.LineChart(document.getElementById('grafica_div'));
@@ -110,7 +115,6 @@
 </head>
 <body>
 
-  <!-- El texto de carga ha sido eliminado por completo -->
   <div id="grafica_div"></div>
 
 </body>
